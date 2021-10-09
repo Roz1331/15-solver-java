@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.function.Function;
 
 public class Solver {
 
@@ -113,14 +114,32 @@ public class Solver {
         return res;
     }
 
-    public static void main(String[] args) {
-        String str = "51247308A6BE9FCD";
-        String failStr = "F2345678A0BE91CD";
+    public static void TestSolution(String name, Function<Board, Integer> solution, int maxDepth) throws Exception {
+        TestCase[] positions = { new TestCase("123456789ABCDEF0", 0), new TestCase("1234067859ACDEBF", 5),
+                new TestCase("5134207896ACDEBF", 8), new TestCase("16245A3709C8DEBF", 10),
+                new TestCase("1723068459ACDEBF", 13), new TestCase("12345678A0BE9FCD", 19),
+                new TestCase("51247308A6BE9FCD", 27), new TestCase("F2345678A0BE91DC", 33),
+                new TestCase("75123804A6BE9FCD", 35), new TestCase("75AB2C416D389F0E", 45),
+                new TestCase("04582E1DF79BCA36", 48), new TestCase("FE169B4C0A73D852", 52),
+                new TestCase("D79F2E8A45106C3B", 55), new TestCase("DBE87A2C91F65034", 58) };
+        System.out.println("Start tests for "+name);
+        for (TestCase testCase : positions) {
+            if (testCase.expectedLength > maxDepth)
+                break;
+            var startedAt = System.nanoTime();
+            int moves = solution.apply(new Board(testCase.position));
+            var finishedAt = System.nanoTime();
+            if (moves != testCase.expectedLength) throw new Exception(String.format("Expected %s, but was %s",
+                    testCase.expectedLength, moves));
+            System.out.println(String.format("Position %s, Number of moves = %d, expected = %d, time = %dms",
+                    testCase.position, moves, testCase.expectedLength, (finishedAt - startedAt) / 1000000));
+        }
+    }
 
-        Board initial = new Board(str);
-        Solver solver = new Solver(initial);
-
-
-        System.out.println("Number of moves = " + solver.moves());
+    public static void main(String[] args) throws Exception {
+        // TestSolution("BFS", (board -> TODO), TODO);
+        // TestSolution("IDDFS", (board -> TODO), TODO);
+        TestSolution("A*", (board -> new Solver(board).moves()), 55);
+        // TestSolution("IDA*", (board -> TODO), TODO);
     }
 }
