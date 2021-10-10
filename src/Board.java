@@ -46,18 +46,35 @@ public class Board {
             }
         }
     }
+
+    public int manhattanDistance() {
+        int manhattan = 0;
+
+        for (int i = 0; i < blocks.length; i++) {
+            for (int j = 0; j < blocks[i].length; j++) {
+                if (blocks[i][j] != (i*4 + j + 1) && blocks[i][j] != 0) {  // если 0 не на своем месте - не считается
+                    int pos = blocks[i][j] - 1;
+                    int x2 = pos / 4;
+                    int y2 = pos % 4;
+                    manhattan += (Math.abs(i - x2) + Math.abs(j - y2));
+                }
+            }
+        }
+
+        return manhattan;
+    }
+
     public Board(String str) {
         strLine = str;
         blocks = Solver.initArrayFromString(strLine);
-        int[][] blocks2 = deepCopy(blocks);
-        this.blocks = blocks2;
+        this.blocks = deepCopy(blocks);
 
         h = 0;
         for (int i = 0; i < blocks.length; i++) {  //  в этом цикле определяем координаты нуля и вычисляем h(x)
             for (int j = 0; j < blocks[i].length; j++) {
-                if (blocks[i][j] != (i*dimension() + j + 1) && blocks[i][j] != 0) {  // если 0 не на своем месте - не считается
-                    h += 1;
-                }
+                
+                h = manhattanDistance();
+                
                 if (blocks[i][j] == 0) {
                     zeroX = (int) i;
                     zeroY = (int) j;
@@ -97,12 +114,12 @@ public class Board {
         return sum % 2 == 0;
     }
 
-
     public int dimension() {
         return blocks.length;
     }
 
     public int h() {
+        h = manhattanDistance();
         return h;
     }
 
@@ -126,8 +143,19 @@ public class Board {
                 }
             }
         }
-
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        int size = dimension();
+        for(int i = 0; i<size; i++) {
+            for(int j = 0; j<size; j++) {
+                hash = (hash<<2)^blocks[i][j];
+            }
+        }
+        return hash;
     }
 
     public Iterable<Board> neighbors() {

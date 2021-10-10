@@ -3,7 +3,6 @@ import java.util.function.Function;
 
 public class Solver {
 
-    private static Board initial;
     private List<Board> result = new ArrayList<Board>();
 
     private class ITEM{
@@ -20,7 +19,6 @@ public class Solver {
     }
 
     public Solver(Board initial) {
-        this.initial = initial;
         if(!Board.isValid()) {
             System.out.println("String is not valid");
             return;
@@ -34,9 +32,13 @@ public class Solver {
         });
 
         priorityQueue.add(new ITEM(null, initial));
-
+        Set<Board> visited = new HashSet<Board>();
         while (true){
-            ITEM board = priorityQueue.poll(); //  шаг 2
+            ITEM board = priorityQueue.poll();
+
+            if(visited.contains(Objects.requireNonNull(board).getBoard()))
+                continue;
+            visited.add(board.getBoard());
 
             //  если дошли до решения, сохраняем весь путь ходов в лист
             if(board.board.isGoal()) {
@@ -44,15 +46,10 @@ public class Solver {
                 return;
             }
 
-            Iterator iterator = board.board.neighbors().iterator(); // соседи
-            while (iterator.hasNext()){
-                Board board1 = (Board) iterator.next();
-
-                // оптимизация
-                if(board1!= null && !containsInPath(board, board1))
+            for (Board board1 : board.board.neighbors()) {
+                if (board1 != null && !visited.contains(board1))
                     priorityQueue.add(new ITEM(board, board1));
             }
-
         }
     }
 
@@ -84,23 +81,9 @@ public class Solver {
         }
     }
 
-    // была ли уже такая позиция в пути
-    private boolean containsInPath(ITEM item, Board board){
-        ITEM item2 = item;
-        while (true){
-            if(item2.board.equals(board)) return true;
-            item2 = item2.prevBoard;
-            if(item2 == null) return false;
-        }
-    }
-
     public int moves() {
         if(!Board.isValid()) return -1;
         return result.size() - 1;
-    }
-
-    public Iterable<Board> solution() {
-        return result;
     }
 
     public static int[][] initArrayFromString(String str) {
@@ -131,8 +114,8 @@ public class Solver {
             var finishedAt = System.nanoTime();
             if (moves != testCase.expectedLength) throw new Exception(String.format("Expected %s, but was %s",
                     testCase.expectedLength, moves));
-            System.out.println(String.format("Position %s, Number of moves = %d, expected = %d, time = %dms",
-                    testCase.position, moves, testCase.expectedLength, (finishedAt - startedAt) / 1000000));
+            System.out.printf("Position %s, Number of moves = %d, expected = %d, time = %dms%n",
+                    testCase.position, moves, testCase.expectedLength, (finishedAt - startedAt) / 1000000);
         }
     }
 
