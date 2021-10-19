@@ -53,6 +53,69 @@ public class Solver {
         }
     }
 
+    public Solver(Board initial, int i) {
+        if(!Board.isValid()) {
+            System.out.println("String is not valid");
+            return;
+        }
+
+        PriorityQueue<ITEM> priorityQueue = new PriorityQueue<ITEM>(10, new Comparator<ITEM>() {
+            @Override
+            public int compare(ITEM o1, ITEM o2) {
+                return Integer.valueOf(measure(o1)).compareTo(measure(o2));
+            }
+        });
+
+        priorityQueue.add(new ITEM(null, initial));
+        Set<Board> visited = new HashSet<Board>();
+        int bound = initial.h();
+        while (true){
+            if (priorityQueue.size() == 0) break;
+            ITEM board = priorityQueue.poll();
+
+            if(visited.contains(Objects.requireNonNull(board).getBoard()))
+                continue;
+            visited.add(board.getBoard());
+
+            Pair searchRes = search(board.board, 0, bound);
+            //  если дошли до решения, сохраняем весь путь ходов в лист
+            if(searchRes.isSolved) {
+                itemToList(new ITEM(board, board.board));
+                return;
+            }
+
+            int t = searchRes.res;
+
+            for (Board board1 : board.board.neighbors()) {
+                if (board1 != null && !visited.contains(board1))
+                    priorityQueue.add(new ITEM(board, board1));
+            }
+
+            bound = t;
+        }
+    }
+
+    public static Pair search(Board cur, int g, int bound) {
+        int min = Integer.MAX_VALUE;
+        if (cur != null) {
+            int f = g + cur.h();
+            if (f > bound) return new Pair(bound + 1, false);
+            if (cur.isGoal())  return new Pair(bound + 1, true);
+
+            Board prev = null;
+            for(Board curr : cur.neighbors())
+            {
+                if( prev != null ) {
+                    int t = search(curr, f, bound).res;
+                    if (t == bound) return new Pair(bound, true);;
+                    if (t < min) min = t;
+                }
+                prev = curr;
+            }
+        }
+        return new Pair(min, false);
+    }
+
     //  вычисляем f(x)
     private static int measure(ITEM item){
         ITEM item2 = item;
@@ -121,8 +184,7 @@ public class Solver {
 
     public static void main(String[] args) throws Exception {
         // TestSolution("BFS", (board -> TODO), TODO);
-        // TestSolution("IDDFS", (board -> TODO), TODO);
         TestSolution("A*", (board -> new Solver(board).moves()), 55);
-        // TestSolution("IDA*", (board -> TODO), TODO);
+        TestSolution("IDA*", (board ->  new Solver(board,1).moves()), 55);
     }
 }
