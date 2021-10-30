@@ -85,30 +85,9 @@ public class Solver {
             Board prev = null;
             for(Board curr : cur.neighbors())
             {
-//                if (prev != null)
-//                {
-//                    if(curr.right && !prev.left
-//                            || curr.left && !prev.right
-//                            || cur.top && !prev.bottom
-//                            || cur.bottom && !prev.top)
-//                    {
-//                        Pair res = search(curr, g + 1, bound);
-//                        int t = res.res;
-//                        if (res.isSolved) return res;
-//                        if (t < min) min = t;
-//                    }
-//
-//                }
-//                else {
-//                    Pair res = search(curr, g + 1, bound);
-//                    int t = res.res;
-//                    if (res.isSolved) return res;
-//                    if (t < min) min = t;
-//                }
-
                 if (prev != null )
                 {
-                    if (prev != cur)
+                    if (prev != curr)
                     {
                         Pair res = search(curr, g + 1, bound);
                         int t = res.res;
@@ -123,7 +102,6 @@ public class Solver {
                     if (res.isSolved) return res;
                     if (t < min) min = t;
                 }
-
 
                 prev = curr;
             }
