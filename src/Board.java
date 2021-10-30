@@ -11,17 +11,21 @@ public class Board {
     public static int size = 16;
     public static int[] field = new int[size];
     public static String strLine;
+    public boolean left = false;
+    public boolean right = false;
+    public boolean top = false;
+    public boolean bottom = false;
 
     public Board(int[][] blocks) {
         int[][] blocks2 = deepCopy(blocks);
         this.blocks = blocks2;
 
-        h = 0;
+        h = manhattanDistance();
         for (int i = 0; i < blocks.length; i++) {
             for (int j = 0; j < blocks[i].length; j++) {
-                if (blocks[i][j] != (i*dimension() + j + 1) && blocks[i][j] != 0) {  // если 0 не на своем месте - не считается
-                    h += 1;
-                }
+//                if (blocks[i][j] != (i*dimension() + j + 1) && blocks[i][j] != 0) {  // если 0 не на своем месте - не считается
+//                    h += 1;
+//                }
                 if (blocks[i][j] == 0) {
                     zeroX = (int) i;
                     zeroY = (int) j;
@@ -160,10 +164,27 @@ public class Board {
 
     public Iterable<Board> neighbors() {
         Set<Board> boardList = new HashSet<Board>();
-        boardList.add(chng(getNewBlock(), zeroX, zeroY, zeroX, zeroY + 1));
-        boardList.add(chng(getNewBlock(), zeroX, zeroY, zeroX, zeroY - 1));
-        boardList.add(chng(getNewBlock(), zeroX, zeroY, zeroX - 1, zeroY));
-        boardList.add(chng(getNewBlock(), zeroX, zeroY, zeroX + 1, zeroY));
+
+        // получаем новое состояние + запоминаем, откуда пришли
+
+        Board newBoard = chng(getNewBlock(), zeroX, zeroY, zeroX, zeroY + 1);
+//        newBoard.top = true;
+        boardList.add(newBoard);
+
+        newBoard = chng(getNewBlock(), zeroX, zeroY, zeroX, zeroY - 1);
+//        newBoard.top = false;
+//        newBoard.bottom = true;
+        boardList.add(newBoard);
+
+        newBoard = chng(getNewBlock(), zeroX, zeroY, zeroX - 1, zeroY);
+//        newBoard.bottom = false;
+//        newBoard.left = true;
+        boardList.add(newBoard);
+
+        newBoard = chng(getNewBlock(), zeroX, zeroY, zeroX + 1, zeroY);
+//        newBoard.left = false;
+//        newBoard.right = true;
+        boardList.add(newBoard);
 
         return boardList;
     }

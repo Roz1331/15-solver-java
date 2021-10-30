@@ -4,7 +4,7 @@ import java.util.function.Function;
 public class Solver {
 
     private List<Board> result = new ArrayList<Board>();
-
+    public int l;
     private class ITEM{
         private ITEM prevBoard;
         private Board board;
@@ -59,37 +59,17 @@ public class Solver {
             return;
         }
 
-        PriorityQueue<ITEM> priorityQueue = new PriorityQueue<ITEM>(10, new Comparator<ITEM>() {
-            @Override
-            public int compare(ITEM o1, ITEM o2) {
-                return Integer.valueOf(measure(o1)).compareTo(measure(o2));
-            }
-        });
-
-        priorityQueue.add(new ITEM(null, initial));
         Set<Board> visited = new HashSet<Board>();
         int bound = initial.h();
         while (true){
-            if (priorityQueue.size() == 0) break;
-            ITEM board = priorityQueue.poll();
-
-            if(visited.contains(Objects.requireNonNull(board).getBoard()))
-                continue;
-            visited.add(board.getBoard());
-
-            Pair searchRes = search(board.board, 0, bound);
+            Pair searchRes = search(initial, 0, bound);
             //  если дошли до решения, сохраняем весь путь ходов в лист
             if(searchRes.isSolved) {
-                itemToList(new ITEM(board, board.board));
+                l = searchRes.res;
                 return;
             }
 
             int t = searchRes.res;
-
-            for (Board board1 : board.board.neighbors()) {
-                if (board1 != null && !visited.contains(board1))
-                    priorityQueue.add(new ITEM(board, board1));
-            }
 
             bound = t;
         }
@@ -99,17 +79,52 @@ public class Solver {
         int min = Integer.MAX_VALUE;
         if (cur != null) {
             int f = g + cur.h();
-            if (f > bound) return new Pair(bound + 1, false);
-            if (cur.isGoal())  return new Pair(bound + 1, true);
+            if (f > bound) return new Pair(f, false);
+            if (cur.isGoal())  return new Pair(f, true);
 
             Board prev = null;
             for(Board curr : cur.neighbors())
             {
-                if( prev != null ) {
-                    int t = search(curr, f, bound).res;
-                    if (t == bound) return new Pair(bound, true);;
+//                if (prev != null)
+//                {
+//                    if(curr.right && !prev.left
+//                            || curr.left && !prev.right
+//                            || cur.top && !prev.bottom
+//                            || cur.bottom && !prev.top)
+//                    {
+//                        Pair res = search(curr, g + 1, bound);
+//                        int t = res.res;
+//                        if (res.isSolved) return res;
+//                        if (t < min) min = t;
+//                    }
+//
+//                }
+//                else {
+//                    Pair res = search(curr, g + 1, bound);
+//                    int t = res.res;
+//                    if (res.isSolved) return res;
+//                    if (t < min) min = t;
+//                }
+
+                if (prev != null )
+                {
+                    if (prev != cur)
+                    {
+                        Pair res = search(curr, g + 1, bound);
+                        int t = res.res;
+                        if (res.isSolved) return res;
+                        if (t < min) min = t;
+                    }
+                }
+                else
+                {
+                    Pair res = search(curr, g + 1, bound);
+                    int t = res.res;
+                    if (res.isSolved) return res;
                     if (t < min) min = t;
                 }
+
+
                 prev = curr;
             }
         }
@@ -183,8 +198,7 @@ public class Solver {
     }
 
     public static void main(String[] args) throws Exception {
-        // TestSolution("BFS", (board -> TODO), TODO);
-        TestSolution("A*", (board -> new Solver(board).moves()), 55);
-        TestSolution("IDA*", (board ->  new Solver(board,1).moves()), 55);
+        //TestSolution("A*", (board -> new Solver(board).moves()), 55);
+        TestSolution("IDA*", (board ->  new Solver(board,1).l), 55);
     }
 }
