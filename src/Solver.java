@@ -5,7 +5,8 @@ public class Solver {
 
     private List<Board> result = new ArrayList<Board>();
     public int l;
-    private class ITEM{
+
+    private class ITEM {
         private ITEM prevBoard;
         private Board board;
 
@@ -13,13 +14,14 @@ public class Solver {
             this.prevBoard = prevBoard;
             this.board = board;
         }
+
         public Board getBoard() {
             return board;
         }
     }
 
     public Solver(Board initial) {
-        if(!Board.isValid()) {
+        if (!Board.isValid()) {
             System.out.println("String is not valid");
             return;
         }
@@ -33,15 +35,15 @@ public class Solver {
 
         priorityQueue.add(new ITEM(null, initial));
         Set<Board> visited = new HashSet<Board>();
-        while (true){
+        while (true) {
             ITEM board = priorityQueue.poll();
 
-            if(visited.contains(Objects.requireNonNull(board).getBoard()))
+            if (visited.contains(Objects.requireNonNull(board).getBoard()))
                 continue;
             visited.add(board.getBoard());
 
-            //  если дошли до решения, сохраняем весь путь ходов в лист
-            if(board.board.isGoal()) {
+            // если дошли до решения, сохраняем весь путь ходов в лист
+            if (board.board.isGoal()) {
                 itemToList(new ITEM(board, board.board));
                 return;
             }
@@ -54,17 +56,17 @@ public class Solver {
     }
 
     public Solver(Board initial, int i) {
-        if(!Board.isValid()) {
+        if (!Board.isValid()) {
             System.out.println("String is not valid");
             return;
         }
 
         Set<Board> visited = new HashSet<Board>();
         int bound = initial.h();
-        while (true){
+        while (true) {
             Pair searchRes = search(initial, 0, bound);
-            //  если дошли до решения, сохраняем весь путь ходов в лист
-            if(searchRes.isSolved) {
+            // если дошли до решения, сохраняем весь путь ходов в лист
+            if (searchRes.isSolved) {
                 l = searchRes.res;
                 return;
             }
@@ -79,44 +81,45 @@ public class Solver {
         int min = Integer.MAX_VALUE;
         if (cur != null) {
             int f = g + cur.h();
-            if (f > bound) return new Pair(f, false);
-            if (cur.isGoal())  return new Pair(f, true);
 
-            for(Board curr : cur.neighbors())
-            {
-                if (!cur.equals(curr))
-                {
-                    Pair res = search(curr, g + 1, bound);
-                    int t = res.res;
-                    if (res.isSolved) return res;
-                    if (t < min) min = t;
-                }
+            if (f > bound)
+                return new Pair(f, false);
+            if (cur.isGoal())
+                return new Pair(f, true);
+
+            for (Board curr : cur.neighbors()) {
+                Pair res = search(curr, g + 1, bound);
+                int t = res.res;
+                if (res.isSolved)
+                    return res;
+                if (t < min)
+                    min = t;
             }
         }
         return new Pair(min, false);
     }
 
-    //  вычисляем f(x)
-    private static int measure(ITEM item){
+    // вычисляем f(x)
+    private static int measure(ITEM item) {
         ITEM item2 = item;
-        int c= 0;   // g(x)
-        int measure = item.getBoard().h();  // h(x)
-        while (true){
+        int c = 0; // g(x)
+        int measure = item.getBoard().h(); // h(x)
+        while (true) {
             c++;
             item2 = item2.prevBoard;
-            if(item2 == null) {
+            if (item2 == null) {
                 // g(x) + h(x)
                 return measure + c;
             }
         }
     }
 
-    //  сохранение
-    private void itemToList(ITEM item){
+    // сохранение
+    private void itemToList(ITEM item) {
         ITEM item2 = item;
-        while (true){
+        while (true) {
             item2 = item2.prevBoard;
-            if(item2 == null) {
+            if (item2 == null) {
                 Collections.reverse(result);
                 return;
             }
@@ -125,7 +128,8 @@ public class Solver {
     }
 
     public int moves() {
-        if(!Board.isValid()) return -1;
+        if (!Board.isValid())
+            return -1;
         return result.size() - 1;
     }
 
@@ -148,22 +152,22 @@ public class Solver {
                 new TestCase("75123804A6BE9FCD", 35), new TestCase("75AB2C416D389F0E", 45),
                 new TestCase("04582E1DF79BCA36", 48), new TestCase("FE169B4C0A73D852", 52),
                 new TestCase("D79F2E8A45106C3B", 55), new TestCase("DBE87A2C91F65034", 58) };
-        System.out.println("Start tests for "+name);
+        System.out.println("Start tests for " + name);
         for (TestCase testCase : positions) {
             if (testCase.expectedLength > maxDepth)
                 break;
             var startedAt = System.nanoTime();
             int moves = solution.apply(new Board(testCase.position));
             var finishedAt = System.nanoTime();
-            if (moves != testCase.expectedLength) throw new Exception(String.format("Expected %s, but was %s",
-                    testCase.expectedLength, moves));
-            System.out.printf("Position %s, Number of moves = %d, expected = %d, time = %dms%n",
-                    testCase.position, moves, testCase.expectedLength, (finishedAt - startedAt) / 1000000);
+            if (moves != testCase.expectedLength)
+                throw new Exception(String.format("Expected %s, but was %s", testCase.expectedLength, moves));
+            System.out.printf("Position %s, Number of moves = %d, expected = %d, time = %dms%n", testCase.position,
+                    moves, testCase.expectedLength, (finishedAt - startedAt) / 1000000);
         }
     }
 
     public static void main(String[] args) throws Exception {
-//        TestSolution("A*", (board -> new Solver(board).moves()), 55);
+        TestSolution("A*", (board -> new Solver(board).moves()), 55);
         TestSolution("IDA*", (board ->  new Solver(board,1).l), 55);
     }
 }
