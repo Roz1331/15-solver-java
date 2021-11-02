@@ -169,22 +169,26 @@ public class Board {
 
         Board newBoard = chng(getNewBlock(), zeroX, zeroY, zeroX, zeroY + 1);
 //        newBoard.top = true;
-        boardList.add(newBoard);
+        if (newBoard != null)
+            boardList.add(newBoard);
 
         newBoard = chng(getNewBlock(), zeroX, zeroY, zeroX, zeroY - 1);
 //        newBoard.top = false;
 //        newBoard.bottom = true;
-        boardList.add(newBoard);
+        if (newBoard != null)
+            boardList.add(newBoard);
 
         newBoard = chng(getNewBlock(), zeroX, zeroY, zeroX - 1, zeroY);
 //        newBoard.bottom = false;
 //        newBoard.left = true;
-        boardList.add(newBoard);
+        if (newBoard != null)
+            boardList.add(newBoard);
 
         newBoard = chng(getNewBlock(), zeroX, zeroY, zeroX + 1, zeroY);
 //        newBoard.left = false;
 //        newBoard.right = true;
-        boardList.add(newBoard);
+        if (newBoard != null)
+            boardList.add(newBoard);
 
         return boardList;
     }

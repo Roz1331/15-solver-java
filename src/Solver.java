@@ -82,28 +82,15 @@ public class Solver {
             if (f > bound) return new Pair(f, false);
             if (cur.isGoal())  return new Pair(f, true);
 
-            Board prev = null;
             for(Board curr : cur.neighbors())
             {
-                if (prev != null )
-                {
-                    if (prev != curr)
-                    {
-                        Pair res = search(curr, g + 1, bound);
-                        int t = res.res;
-                        if (res.isSolved) return res;
-                        if (t < min) min = t;
-                    }
-                }
-                else
+                if (!cur.equals(curr))
                 {
                     Pair res = search(curr, g + 1, bound);
                     int t = res.res;
                     if (res.isSolved) return res;
                     if (t < min) min = t;
                 }
-
-                prev = curr;
             }
         }
         return new Pair(min, false);
@@ -176,7 +163,7 @@ public class Solver {
     }
 
     public static void main(String[] args) throws Exception {
-        //TestSolution("A*", (board -> new Solver(board).moves()), 55);
+//        TestSolution("A*", (board -> new Solver(board).moves()), 55);
         TestSolution("IDA*", (board ->  new Solver(board,1).l), 55);
     }
 }
